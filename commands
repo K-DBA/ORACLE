@@ -1,0 +1,187 @@
+Add ip and hostname in /etc/hosts
+ 
+Softwares and Mount Points
+ 
+yum list oracle*
+ 
+
+3. Creating users and groups 
+Manual Method:
+	groupadd oinstall 
+	groupadd dba 
+	
+	useradd oracle 
+	usermod -g oinstall -G oinstall,dba oracle
+Automated Method:
+	yum install oracle* --skip-broken 
+	yum install -y oracle-database-preinstall-19c --skip-broken
+ 
+ 
+id oracle
+ 
+cat /etc/passwd
+cat /etc/group 
+set password to oracle
+passwd oracle
+  
+
+4. Directory creation
+[root@lab1 ~]# df -h
+Filesystem                         Size  Used Avail Use% Mounted on
+devtmpfs                           4.0M     0  4.0M   0% /dev
+tmpfs                              3.9G     0  3.9G   0% /dev/shm
+tmpfs                              1.6G  9.3M  1.6G   1% /run
+/dev/mapper/ol-root                 37G  6.7G   31G  19% /
+/dev/sda1                          960M  451M  510M  47% /boot
+/dev/mapper/ol-home                 18G  4.7G   14G  27% /home
+/dev/mapper/vg_redo2-lv_redo2       16G  147M   16G   1% /oracle/FRA
+/dev/mapper/vg_data-lv_dbfiles      16G  147M   16G   1% /oracle/dbfiles
+/dev/mapper/vg_index-lv_idxfiles    16G  147M   16G   1% /oracle/indexes
+/dev/mapper/vg_archive-lv_archive   10G  104M  9.9G   2% /oracle/archive
+/dev/mapper/vg_sw-lv_sw             16G  147M   16G   1% /u01/app/oracle
+/dev/mapper/vg_redo1-lv_redo1       16G  147M   16G   1% /oracle/redo1
+tmpfs                              780M   52K  780M   1% /run/user/42
+tmpfs                              780M   36K  780M   1% /run/user/0
+
+mkdir -p /u01/app/oracle/product/19.0.0/dbhome_1
+chown -R oracle:oinstall /u01
+chmod -R 755 /u01
+ 
+chown -R oracle:oinstall /u01
+chmod -R 755 /u01
+ 
+5. disable firewall on hosts 
+
+systemctl status firewalld
+systemctl stop firewalld
+systemctl disable firewalld
+ 
+unzip -q V982063-01-001.zip -d /u01/app/oracle/
+ 
+chown -R oracle:oinstall /u01
+chmod -R 755 /u01
+ 
+sudo yum install xorg-x11*
+systemctl restart sshd
+service sshd restart
+ 
+ 
+after these above three commands take a new session of the same server and then run ./runInstaller
+go to oracle location
+/u01/app/oracle
+cd OPatch/
+./opatch version
+mv OPatch OPatch_old
+ 
+Unzip the latest opatch
+## unzip -q p6880880_230000_Linux-x86-64.zip -d /u01/app/oracle/
+unzip -q V982063-01-001.zip -d /u01/app/oracle/product/19.0.0/dbhome_1
+chown -R oracle:oinstall /u01
+chmod -R 755 /u01
+ 
+Check the latest opatch version
+ 
+unzip -q p36912597_190000_Linux-x86-64.zip -d /home/software/patch/
+chown -R oracle:oinstall /home/software/patch/
+chmod -R 755 /home/software/patch/
+ 
+
+[oracle@lab1 oracle]$ pwd
+/u01/app/oracle
+export CV_ASSUME_DISTID=OL8
+export ORACLE_SID=TESTDB
+export ORACLE_BASE=/u01/app/oracle
+export ORACLE_HOME=/u01/app/oracle/product/19.0.0/dbhome_1
+export PATH=$ORACLE_HOME/bin:$PATH
+export LD_LIBRARY_PATH=/u01/app/oracle/lib:$LD_LIBRARY_PATH
+ 
+./runInstaller -applyRU /home/software/patch/36912597
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+wget https://yum.oracle.com/repo/OracleLinux/OL7/latest/x86_64/getPackage/compat-libcap1-1.10-7.el7.x86_64.rpm
+rpm -ivh compat-libcap1-1.10-7.el7.x86_64.rpm
+ 
+ 
+ 
+ 
+/u01/app/oraInventory/orainstRoot.sh
+ 
+/u01/app/oracle/product/19.0.0/dbhome_1/root.sh
+ 
+ 
+ 
+cd /bin
+./dbca
+ 
+ 
+chown -R oracle:oinstall /oracle/*
+chmod -R 755 /oracle/*
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ 
+ 
+
+ 
+
+-- ✅ Check for XML and XDB components
+SELECT comp_id, status FROM dba_registry WHERE comp_id IN ('XML', 'XDB');
+
+-- 🔐 Grant EXECUTE on DBMS_CRYPTO
+GRANT EXECUTE ON DBMS_CRYPTO TO your_user;
+
+-- 📊 Grant access to dictionary views
+GRANT SELECT ON DBA_TABLES TO your_user;
+GRANT SELECT ON V_$SEGMENT_STATISTICS TO your_user;
+
+-- 🌐 Setup ACL privileges for network access
+BEGIN
+  DBMS_NETWORK_ACL_ADMIN.APPEND_HOST_ACE(
+    host => 'example.com',  -- Replace with actual host
+    ace  => xs$ace_type(
+              privilege_list => xs$name_list('connect'),
+              principal_name => 'your_user',  -- Replace with actual user
+              principal_type => xs_acl.ptype_db));
+END;
+/
+
+-- 🧠 Optional: Verify ACL setup
+SELECT * FROM DBA_NETWORK_ACLS;
+SELECT * FROM DBA_NETWORK_ACL_PRIVILEGES;
+
+-- 🔧 Set cursor sharing behavior
+ALTER SYSTEM SET cursor_sharing = 'EXACT' SCOPE = BOTH;
+
+-- 📅 Set default date format
+ALTER SYSTEM SET nls_date_format = 'DD-MON-RR' SCOPE = BOTH;
+
+-- 🔢 Increase open cursors limit
+ALTER SYSTEM SET open_cursors = 30000 SCOPE = BOTH;
+
+-- ⚙️ Set optimizer features to match version 12.1.0.2
+ALTER SYSTEM SET optimizer_features_enable = '12.1.0.2' SCOPE = BOTH;
+
+-- 🚀 Set optimizer mode to favor throughput
+ALTER SYSTEM SET optimizer_mode = 'ALL_ROWS' SCOPE = BOTH;
+
+SHOW PARAMETER cursor_sharing;
+SHOW PARAMETER nls_date_format;
+SHOW PARAMETER open_cursors;
+SHOW PARAMETER optimizer_features_enable;
+SHOW PARAMETER optimizer_mode;
+ 
