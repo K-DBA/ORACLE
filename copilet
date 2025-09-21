@@ -1,0 +1,728 @@
+[root@lab1 software]# df -h Filesystem Size Used Avail Use% Mounted on devtmpfs 4.0M 0 4.0M 0% /dev tmpfs 3.9G 0 3.9G 0% /dev/shm tmpfs 1.6G 9.3M 1.6G 1% /run /dev/mapper/ol-root 37G 6.8G 31G 19% / /dev/mapper/vg_data-lv_dbfiles 16G 147M 16G 1% /oracle/dbfiles /dev/mapper/ol-home 18G 8.4G 9.6G 47% /home /dev/sda1 960M 451M 510M 47% /boot /dev/mapper/vg_redo2-lv_redo2 16G 147M 16G 1% /oracle/FRA /dev/mapper/vg_archive-lv_archive 10G 104M 9.9G 2% /oracle/archive /dev/mapper/vg_redo1-lv_redo1 16G 147M 16G 1% /oracle/redo1 /dev/mapper/vg_index-lv_idxfiles 16G 147M 16G 1% /oracle/indexes /dev/mapper/vg_sw-lv_sw 31G 13G 19G 40% /u01/app/oracle tmpfs 780M 52K 780M 1% /run/user/42 tmpfs 780M 36K 780M 1% /run/user/0 tmpfs 780M 36K 780M 1% /run/user/54321 [root@lab1 software]# i am at the stage of dbca and i dont understand how to give these mount point locations to assign file in these mount points
+You're in a great spot—almost ready to create your Oracle 19c database using DBCA! 🎯 Let’s walk through how to assign your custom mount points during the Advanced Configuration stage of DBCA so your database files land exactly where you want them.
+
+🛠️ How to Assign Mount Points in DBCA (Advanced Configuration)
+Since you’ve already set up dedicated mount points like /oracle/dbfiles, /oracle/FRA, /oracle/archive, etc., here’s how to use them:
+
+1. Choose "Advanced Configuration"
+In the DBCA screen you’re on (the one with "Typical" and "Advanced" options), select Advanced Configuration.
+
+This gives you full control over file locations, tablespaces, redo logs, etc.
+
+2. Storage Configuration Step
+When you reach the Storage Configuration step:
+
+Choose File System as your storage type.
+
+Uncheck “Use Oracle-Managed Files” if you want to manually specify paths.
+
+3. Specify File Locations
+You’ll be prompted to enter paths for different types of files. Here’s how to map them:
+
+File Type	Suggested Mount Point	Example Path
+Datafiles	/oracle/dbfiles	/oracle/dbfiles/MYPROD/
+Redo Logs (Group 1)	/oracle/redo1	/oracle/redo1/redo01.log
+Redo Logs (Group 2)	/oracle/redo2	/oracle/redo2/redo02.log
+FRA (Recovery Area)	/oracle/FRA	/oracle/FRA/
+Archive Logs	/oracle/archive	/oracle/archive/
+Index Files	/oracle/indexes	/oracle/indexes/
+Oracle Home	/u01/app/oracle	Already set by Oracle installation
+You can manually type these paths or use the browse button in DBCA to select them.
+
+4. Pluggable Database (if applicable)
+If you're creating a Container Database (CDB):
+
+You’ll also be asked for the Pluggable Database (PDB) name and location.
+
+You can use a subdirectory under /oracle/dbfiles, like /oracle/dbfiles/MYPROD/pdb1/.
+
+🧠 Pro Tips
+Make sure the Oracle user (oracle) has read/write permissions on all these mount points.
+
+Keep naming consistent to avoid confusion later (e.g., use MYPROD as a folder name for all related files).
+
+If you’re unsure about redo log sizes or FRA size, you can accept defaults and adjust later via SQL.
+
+Want help crafting the exact directory structure or validating permissions before you proceed? I can walk you through that too.
+
+[root@lab1 software]# [root@lab1 software]# df -h Filesystem Size Used Avail Use% Mounted on devtmpfs 4.0M 0 4.0M 0% /dev tmpfs 3.9G 0 3.9G 0% /dev/shm tmpfs 1.6G 9.3M 1.6G 1% /run /dev/mapper/ol-root 37G 6.8G 31G 19% / /dev/mapper/vg_data-lv_dbfiles 16G 147M 16G 1% /oracle/dbfiles /dev/mapper/ol-home 18G 8.4G 9.6G 47% /home /dev/sda1 960M 451M 510M 47% /boot /dev/mapper/vg_redo2-lv_redo2 16G 147M 16G 1% /oracle/FRA /dev/mapper/vg_archive-lv_archive 10G 104M 9.9G 2% /oracle/archive /dev/mapper/vg_redo1-lv_redo1 16G 147M 16G 1% /oracle/redo1 /dev/mapper/vg_index-lv_idxfiles 16G 147M 16G 1% /oracle/indexes /dev/mapper/vg_sw-lv_sw 31G 13G 19G 40% /u01/app/oracle tmpfs 780M 52K 780M 1% /run/user/42 tmpfs 780M 36K 780M 1% /run/user/0 tmpfs 780M 36K 780M 1% /run/user/54321 [root@lab1 software]# cd / [root@lab1 /]# ls -ltr total 28 drwxr-xr-x. 2 root root 6 Oct 26 2024 srv lrwxrwxrwx. 1 root root 8 Oct 26 2024 sbin -> usr/sbin drwxr-xr-x. 2 root root 6 Oct 26 2024 mnt drwxr-xr-x. 2 root root 6 Oct 26 2024 media lrwxrwxrwx. 1 root root 9 Oct 26 2024 lib64 -> usr/lib64 lrwxrwxrwx. 1 root root 7 Oct 26 2024 lib -> usr/lib lrwxrwxrwx. 1 root root 7 Oct 26 2024 bin -> usr/bin dr-xr-xr-x. 2 root root 6 Oct 26 2024 afs drwxr-xr-x. 12 root root 144 Sep 21 12:14 usr drwxr-xr-x. 20 root root 4096 Sep 21 12:26 var dr-xr-xr-x. 5 root root 4096 Sep 21 12:28 boot drwxr-xr-x. 7 root root 75 Sep 21 13:09 oracle drwxr-xr-x. 3 oracle oinstall 17 Sep 21 13:09 u01 drwxr-xr-x. 5 root root 49 Sep 21 14:02 home dr-xr-xr-x. 331 root root 0 Sep 21 16:19 proc dr-xr-xr-x. 13 root root 0 Sep 21 16:19 sys drwxr-xr-x. 25 root root 4040 Sep 21 16:19 dev drwxr-xr-x. 44 root root 1220 Sep 21 16:19 run dr-xr-x---. 14 root root 4096 Sep 21 16:19 root drwxr-xr-x. 137 root root 8192 Sep 21 16:40 etc drwxr-xr-x. 3 root root 22 Sep 21 16:40 opt drwxrwxrwt. 23 root root 4096 Sep 21 16:40 tmp [root@lab1 /]# cd oracle/ [root@lab1 oracle]# ls archive dbfiles FRA indexes redo1 [root@lab1 oracle]# ls -ltr total 0 drwxr-xr-x. 2 root root 6 Sep 21 13:09 archive drwxr-xr-x. 2 root root 6 Sep 21 13:09 dbfiles drwxr-xr-x. 2 root root 6 Sep 21 13:09 redo1 drwxr-xr-x. 2 root root 6 Sep 21 13:09 indexes drwxr-xr-x. 2 root root 6 Sep 21 13:09 FRA [root@lab1 oracle]# [root@lab1 oracle]#
+Thanks for sharing the full context—this helps a lot! You're nearly set to create your Oracle 19c database, and your mount points are nicely laid out. Now let’s make sure DBCA knows exactly where to place each type of file.
+
+✅ Step-by-Step: Assigning Mount Points in DBCA (Advanced Configuration)
+Since your directories are already mounted and visible under /oracle, you just need to plug them into DBCA during the Advanced Configuration flow.
+
+🔧 1. Launch DBCA and Choose:
+Database Operation: Create a database
+
+Creation Mode: Select Advanced Configuration
+
+Deployment Type: Choose Single Instance Database (or CDB if you're using pluggable databases)
+
+📁 2. Storage Configuration
+Storage Type: Select File System
+
+Uncheck “Use Oracle-Managed Files” so you can manually specify paths.
+
+📂 3. Assign File Locations
+Here’s how to map your mount points to Oracle components:
+
+Oracle Component	Mount Point Path	Example Entry in DBCA
+Datafiles	/oracle/dbfiles	/oracle/dbfiles/MYPROD/
+Redo Log Group 1	/oracle/redo1	/oracle/redo1/redo01.log
+Redo Log Group 2	/oracle/redo2 (create dir)	/oracle/redo2/redo02.log (mkdir first)
+Fast Recovery Area (FRA)	/oracle/FRA	/oracle/FRA/
+Archive Logs	/oracle/archive	/oracle/archive/
+Index Tablespaces	/oracle/indexes	/oracle/indexes/
+🔸 Note: You don’t currently have /oracle/redo2—you’ll need to create it:
+
+bash
+mkdir /oracle/redo2
+chown oracle:oinstall /oracle/redo2
+chmod 755 /oracle/redo2
+🔐 4. Permissions Check
+Make sure the Oracle user has ownership and write access:
+
+bash
+chown -R oracle:oinstall /oracle/*
+chmod -R 755 /oracle/*
+🧱 5. Tablespace & File Naming
+In DBCA, when defining tablespaces or redo logs:
+
+Use consistent naming like MYPROD_data01.dbf, redo01.log, etc.
+
+You can create subfolders under each mount point if you want to organize by tablespace or PDB.
+
+🧠 Final Tips
+Keep a naming convention (e.g., prefix with DB name like MYPROD_) for clarity.
+
+If you’re using a Container Database, you can place PDB files under /oracle/dbfiles/MYPROD/pdb1/.
+
+After DB creation, validate file locations using:
+
+sql
+SELECT name FROM v$datafile;
+SELECT member FROM v$logfile;
+You're doing great—this setup is clean and scalable. Want help scripting the DB creation or validating the layout post-install? I’ve got your back.
+
+at the time database creation (./dbca) i want to set some parameter 2599 cursur_sharing 2 EXACT 281 nls_date_format 2 DD-MON-RR 2770 open_cursors 3 30000 2741 optimizer_features_enable 2 12.1.0.2 2775 optimizer_mode 2 ALL_ROWS how to set curently i at at the stage of installtion at All initilization parameter
+Perfect timing—you’re at the "All Initialization Parameters" screen in DBCA, which is exactly where you can set custom values for parameters like cursor_sharing, nls_date_format, open_cursors, and others. Here's how to do it step by step:
+
+🛠️ How to Set Initialization Parameters in DBCA
+✅ Step-by-Step Instructions:
+In the "All Initialization Parameters" screen:
+
+You’ll see a list of parameters with their default values.
+
+You can either scroll through the list or use the search bar to locate each parameter.
+
+To modify a parameter:
+
+Click on the value field next to the parameter name.
+
+Enter your desired value.
+
+DBCA will validate the input automatically.
+
+🔧 Parameters You Want to Set
+Parameter Name	Value	Notes
+cursor_sharing	EXACT	Controls SQL sharing behavior. EXACT is strict matching.
+nls_date_format	DD-MON-RR	Sets default date format for sessions.
+open_cursors	30000	Increases the number of cursors a session can open.
+optimizer_features_enable	12.1.0.2	Enables optimizer behavior from a specific version.
+optimizer_mode	ALL_ROWS	Favors throughput over response time.
+🔸 Tip: If any parameter isn’t listed by default, click "Add" or "Add Parameter" (depending on your DBCA version), then manually type the name and value.
+
+🧠 Pro Tips
+Don’t forget to validate: DBCA will alert you if a value is invalid or conflicts with other settings.
+
+Post-install tuning: You can always adjust these later using SQL:
+
+sql
+ALTER SYSTEM SET open_cursors = 30000 SCOPE = BOTH;
+You're configuring like a pro. Want help generating a post-installation checklist or validating your parameter choices for performance? I’d be happy to assist.
+
+i have one more requirement To be checked in DBA_REGISTRY Both comp_id XML &XDB shold be available i dont understand also grant permission for dbms_crypto access to v$tables and dba_tables acl privileges
+You're diving into some important post-installation checks and privileges—great move! Let’s break down each of your requirements so they’re crystal clear and easy to implement.
+
+✅ 1. Check XML & XDB Components in DBA_REGISTRY
+Oracle uses the DBA_REGISTRY view to list all installed database components. You need to verify that both XML and XDB components are present.
+
+🔍 Run this SQL:
+sql
+SELECT comp_id, status FROM dba_registry WHERE comp_id IN ('XML', 'XDB');
+✅ Expected Output:
+You should see both XML and XDB listed with a STATUS of VALID. If either is missing or invalid:
+
+You may need to reinstall XDB using $ORACLE_HOME/rdbms/admin/catqm.sql
+
+Or check your installation logs for errors during component registration.
+
+🔐 2. Grant Access to DBMS_CRYPTO
+The DBMS_CRYPTO package allows encryption/decryption operations. It’s not granted to PUBLIC by default.
+
+🛡️ Grant it to your user:
+sql
+GRANT EXECUTE ON DBMS_CRYPTO TO your_user;
+Replace your_user with the actual schema or application user.
+
+📊 3. Access to V$TABLES and DBA_TABLES
+These are data dictionary views:
+
+V$TABLES is not a standard view—did you mean V$FIXED_TABLE or V$SEGMENT_STATISTICS?
+
+DBA_TABLES requires SELECT privilege on the view.
+
+🧾 Grant SELECT access:
+sql
+GRANT SELECT ON DBA_TABLES TO your_user;
+GRANT SELECT ON V_$SEGMENT_STATISTICS TO your_user; -- if needed
+🔸 Note: For V$ views, you must grant access to the underlying V_$ views (with underscore).
+
+🌐 4. ACL Privileges (Access Control Lists)
+ACLs control network access for packages like UTL_HTTP, UTL_SMTP, etc.
+
+🧰 Example: Granting access to connect to external host
+sql
+BEGIN
+  DBMS_NETWORK_ACL_ADMIN.APPEND_HOST_ACE(
+    host => 'example.com',
+    ace  => xs$ace_type(privilege_list => xs$name_list('connect'),
+                        principal_name => 'your_user',
+                        principal_type => xs_acl.ptype_db));
+END;
+/
+Replace 'example.com' and 'your_user' with your actual target host and user.
+
+Would you like a script that bundles all of this together for easier execution? I can whip one up tailored to your environment.
+
+yes
+Awesome! Here's a complete SQL script that covers all your requirements—checking for XML and XDB components, granting access to DBMS_CRYPTO, dictionary views, and setting up ACL privileges. You can run this as the SYS user (or any DBA user) after your database is created:
+
+🧾 Oracle Post-Installation Script
+sql
+-- ✅ Check for XML and XDB components
+SELECT comp_id, status FROM dba_registry WHERE comp_id IN ('XML', 'XDB');
+
+-- 🔐 Grant EXECUTE on DBMS_CRYPTO
+GRANT EXECUTE ON DBMS_CRYPTO TO your_user;
+
+-- 📊 Grant access to dictionary views
+GRANT SELECT ON DBA_TABLES TO your_user;
+GRANT SELECT ON V_$SEGMENT_STATISTICS TO your_user;
+
+-- 🌐 Setup ACL privileges for network access
+BEGIN
+  DBMS_NETWORK_ACL_ADMIN.APPEND_HOST_ACE(
+    host => 'example.com',  -- Replace with actual host
+    ace  => xs$ace_type(
+              privilege_list => xs$name_list('connect'),
+              principal_name => 'your_user',  -- Replace with actual user
+              principal_type => xs_acl.ptype_db));
+END;
+/
+
+-- 🧠 Optional: Verify ACL setup
+SELECT * FROM DBA_NETWORK_ACLS;
+SELECT * FROM DBA_NETWORK_ACL_PRIVILEGES;
+🔄 Replace Placeholders
+your_user: Replace with the actual Oracle username needing access.
+
+'example.com': Replace with the hostname your application needs to connect to.
+
+Would you like me to add logic to conditionally install XDB if it's missing, or wrap this in a shell script for automated deployment? I can tailor it even further to your environment.
+
+and also i want to know these parameter will be set after db creation
+Great question! Here's how Oracle handles initialization parameters like the ones you're setting (cursor_sharing, nls_date_format, open_cursors, etc.) during and after database creation:
+
+🧠 When Are Initialization Parameters Applied?
+✅ During DBCA (Database Creation Assistant)
+If you set parameters in the "All Initialization Parameters" screen during DBCA, they are written directly into the SPFILE (Server Parameter File) or PFILE, depending on your configuration.
+
+These parameters become active immediately once the database is created and started.
+
+📂 Where Are They Stored?
+If you're using an SPFILE (default for DBCA), the parameters are stored in:
+
+Code
+$ORACLE_HOME/dbs/spfile<DB_UNIQUE_NAME>.ora
+If you're using a PFILE, they go into:
+
+Code
+$ORACLE_HOME/dbs/init<DB_UNIQUE_NAME>.ora
+🔄 Can You Change Them After Creation?
+Absolutely. You can modify them anytime using SQL:
+
+🔧 Example: Change open_cursors after creation
+sql
+ALTER SYSTEM SET open_cursors = 30000 SCOPE = BOTH;
+Scope Option	Meaning
+MEMORY	Applies immediately but not saved to SPFILE
+SPFILE	Saved to SPFILE but not applied until next startup
+BOTH	Applies immediately and saved permanently
+🔍 How to Verify After Creation
+Once your DB is up, you can check the values with:
+
+sql
+SHOW PARAMETER cursor_sharing;
+SHOW PARAMETER nls_date_format;
+SHOW PARAMETER open_cursors;
+SHOW PARAMETER optimizer_features_enable;
+SHOW PARAMETER optimizer_mode;
+Or query directly:
+
+sql
+SELECT name, value FROM v$parameter WHERE name IN (
+  'cursor_sharing', 'nls_date_format', 'open_cursors',
+  'optimizer_features_enable', 'optimizer_mode');
+Would you like a post-creation verification script that checks all these parameters and confirms they’re set correctly? I can bundle that up for you too.
+
+is nls format also changable after creation
+Yes, absolutely! The NLS_DATE_FORMAT parameter is fully changeable after database creation, and you can modify it at different levels depending on your needs:
+
+🔧 Ways to Change NLS_DATE_FORMAT After Creation
+1. Session-Level (Temporary)
+This affects only the current session:
+
+sql
+ALTER SESSION SET NLS_DATE_FORMAT = 'DD-MON-RR';
+2. System-Level (Permanent)
+This changes the default for all sessions unless overridden:
+
+sql
+ALTER SYSTEM SET NLS_DATE_FORMAT = 'DD-MON-RR' SCOPE = BOTH;
+🔸 Use SCOPE = BOTH to apply immediately and persist in the SPFILE.
+
+📂 Alternative: Set via Environment Variable
+You can also set it in the OS environment for client tools like SQL*Plus:
+
+bash
+export NLS_DATE_FORMAT='DD-MON-RR'
+🔍 Verify Current Setting
+Run this to check what’s currently active:
+
+sql
+SELECT value FROM v$parameter WHERE name = 'nls_date_format';
+Or:
+
+sql
+SELECT * FROM NLS_SESSION_PARAMETERS WHERE parameter = 'NLS_DATE_FORMAT';
+Would you like me to include this in your post-installation script so it’s automatically applied after DB creation? I can add it seamlessly.
+
+give me script for all parameters which i mentioned above
+Here’s a complete SQL script to set all the initialization parameters you mentioned, tailored for execution after database creation. This script uses ALTER SYSTEM with SCOPE = BOTH so the changes apply immediately and persist across restarts.
+
+🧾 Oracle Initialization Parameter Script
+sql
+-- 🔧 Set cursor sharing behavior
+ALTER SYSTEM SET cursor_sharing = 'EXACT' SCOPE = BOTH;
+
+-- 📅 Set default date format
+ALTER SYSTEM SET nls_date_format = 'DD-MON-RR' SCOPE = BOTH;
+
+-- 🔢 Increase open cursors limit
+ALTER SYSTEM SET open_cursors = 30000 SCOPE = BOTH;
+
+-- ⚙️ Set optimizer features to match version 12.1.0.2
+ALTER SYSTEM SET optimizer_features_enable = '12.1.0.2' SCOPE = BOTH;
+
+-- 🚀 Set optimizer mode to favor throughput
+ALTER SYSTEM SET optimizer_mode = 'ALL_ROWS' SCOPE = BOTH;
+✅ How to Run It
+Connect as a privileged user (e.g., SYSDBA) using SQL*Plus, SQL Developer, or any Oracle client.
+
+Paste and execute the script after the database is created and running.
+
+Would you like me to bundle this with your earlier post-installation grants and checks into one unified deployment script? I can make it seamless for automation.
+
+[root@lab1 ~]# df -h Filesystem Size Used Avail Use% Mounted on devtmpfs 4.0M 0 4.0M 0% /dev tmpfs 3.9G 0 3.9G 0% /dev/shm tmpfs 1.6G 9.3M 1.6G 1% /run /dev/mapper/ol-root 37G 6.9G 31G 19% / /dev/mapper/vg_data-lv_dbfiles 16G 147M 16G 1% /oracle/dbfiles /dev/mapper/ol-home 18G 8.4G 9.6G 47% /home /dev/sda1 960M 451M 510M 47% /boot /dev/mapper/vg_redo2-lv_redo2 16G 147M 16G 1% /oracle/FRA /dev/mapper/vg_archive-lv_archive 10G 104M 9.9G 2% /oracle/archive /dev/mapper/vg_redo1-lv_redo1 16G 147M 16G 1% /oracle/redo1 /dev/mapper/vg_index-lv_idxfiles 16G 147M 16G 1% /oracle/indexes /dev/mapper/vg_sw-lv_sw 31G 13G 19G 40% /u01/app/oracle tmpfs 780M 52K 780M 1% /run/user/42 tmpfs 780M 36K 780M 1% /run/user/0 tmpfs 780M 36K 780M 1% /run/user/54321 i dont understand how to set these mount points because i am able to set /oracle/dbfiles and /oracle/FRA but didnot get other to assign into that
+You're doing well—this part can be a bit tricky, but I’ll guide you through it clearly. The reason you're able to assign /oracle/dbfiles and /oracle/FRA during DBCA is because those are part of the default configuration options in the Typical Configuration or Advanced Configuration screens. The other mount points (like /oracle/redo1, /oracle/archive, /oracle/indexes) require manual setup during the Advanced Configuration flow.
+
+🛠️ How to Assign Custom Mount Points in DBCA
+To use all your mount points, you need to go through Advanced Configuration and disable Oracle-Managed Files (OMF). Here's how:
+
+✅ Step-by-Step in DBCA:
+Start DBCA and choose:
+
+Database Operation: Create Database
+
+Creation Mode: Advanced Configuration
+
+Deployment Type: Single Instance or Container DB
+
+Database Storage: File System
+
+Storage Configuration Screen:
+
+Uncheck “Use Oracle-Managed Files”
+
+This allows you to manually specify file locations for:
+
+Datafiles
+
+Redo logs
+
+Control files
+
+Archive logs
+
+FRA
+
+Index tablespaces
+
+When prompted for file locations:
+
+For Datafiles: use /oracle/dbfiles
+
+For Redo Logs:
+
+Group 1: /oracle/redo1/redo01.log
+
+Group 2: /oracle/redo2/redo02.log (create this directory first)
+
+For Archive Logs: /oracle/archive
+
+For FRA: /oracle/FRA
+
+For Index Tablespaces: /oracle/indexes
+
+📂 Create Missing Mount Points
+If /oracle/redo2 doesn’t exist yet, create it before running DBCA:
+
+bash
+mkdir /oracle/redo2
+chown oracle:oinstall /oracle/redo2
+chmod 755 /oracle/redo2
+🧠 Why You Couldn't See Other Mounts in DBCA
+DBCA only shows default paths unless you manually override them.
+
+Oracle-Managed Files (OMF) hides the complexity—disabling it gives you full control.
+
+🔍 After DB Creation: Verify File Placement
+You can confirm where files were placed using SQL:
+
+sql
+SELECT name FROM v$datafile;
+SELECT member FROM v$logfile;
+SELECT name FROM v$controlfile;
+Would you like a pre-DBCA checklist or a sample layout plan for your file structure? I can help you map it out cleanly.
+
+how to set remaining
+To set the remaining mount points during DBCA (like /oracle/redo1, /oracle/redo2, /oracle/archive, /oracle/indexes), you’ll need to go through the Advanced Configuration path and manually assign each file type to its corresponding mount point. Here's how to do it step by step:
+
+🛠️ Step-by-Step: Assigning All Mount Points in DBCA
+✅ 1. Launch DBCA and Choose:
+Creation Mode: Advanced Configuration
+
+Storage Type: File System
+
+Uncheck “Use Oracle-Managed Files” — this is critical to manually assign paths.
+
+📁 2. Assign File Locations Manually
+When DBCA asks for file locations, use the following mapping:
+
+File Type	Mount Point Path	Example File Name
+Datafiles	/oracle/dbfiles	/oracle/dbfiles/MYPROD_data01.dbf
+Redo Log Group 1	/oracle/redo1	/oracle/redo1/redo01.log
+Redo Log Group 2	/oracle/redo2 (create dir)	/oracle/redo2/redo02.log
+Archive Logs	/oracle/archive	/oracle/archive/arch01.arc
+Fast Recovery Area	/oracle/FRA	/oracle/FRA/
+Index Tablespaces	/oracle/indexes	/oracle/indexes/MYPROD_idx01.dbf
+🔸 Note: You must manually enter these paths in DBCA when prompted for each file type. Use the “Browse” or “Edit” buttons if available.
+
+📂 3. Create Missing Directories Before DBCA
+If /oracle/redo2 doesn’t exist yet, create it:
+
+bash
+mkdir /oracle/redo2
+chown oracle:oinstall /oracle/redo2
+chmod 755 /oracle/redo2
+Repeat for any other missing mount points.
+
+🔍 4. After DB Creation: Verify File Placement
+Run these queries to confirm your files are correctly placed:
+
+sql
+SELECT name FROM v$datafile;
+SELECT member FROM v$logfile;
+SELECT name FROM v$controlfile;
+SELECT name FROM v$tempfile;
+Would you like a pre-filled DBCA layout plan or a shell script to validate mount point permissions before launching DBCA? I can help you streamline the whole setup.
+
+[root@lab1 oracle]# ls -ltr total 0 drwxr-xr-x. 2 oracle oinstall 6 Sep 21 13:09 archive drwxr-xr-x. 2 oracle oinstall 6 Sep 21 13:09 redo1 drwxr-xr-x. 2 oracle oinstall 6 Sep 21 13:09 indexes drwxr-xr-x. 3 oracle oinstall 18 Sep 21 17:30 FRA drwxr-xr-x. 3 oracle oinstall 18 Sep 21 17:30 dbfiles [root@lab1 oracle]# [root@lab1 oracle]# i already have but the time of creation database i get only 2 option for dbfile and FRA for remaining i did not get to choose
+Thanks for the clarification—you’re absolutely right to expect more control during DBCA, especially since you’ve already prepared mount points like /oracle/archive, /oracle/redo1, and /oracle/indexes. The reason you're only seeing options for dbfiles and FRA is because DBCA, even in Advanced Configuration, only prompts for certain file types explicitly. The rest—like redo logs, archive logs, and index tablespaces—must be manually assigned during specific steps.
+
+Let me walk you through how to assign the remaining mount points properly:
+
+🛠️ How to Use All Mount Points During DBCA
+✅ 1. Disable Oracle-Managed Files (OMF)
+In the Storage Configuration step:
+
+Select File System
+
+Uncheck “Use Oracle-Managed Files”
+
+This is critical—it tells DBCA to let you manually specify file paths.
+
+📂 2. Assigning Redo Logs
+During the Database Options or Storage Configuration step:
+
+You’ll be prompted to define Redo Log Groups
+
+Click Edit/Add and manually enter paths like:
+
+/oracle/redo1/redo01.log
+
+/oracle/redo2/redo02.log (create /oracle/redo2 if needed)
+
+📁 3. Assigning Archive Logs
+Oracle doesn’t prompt for archive log location during DBCA. Instead:
+
+After DB creation, run:
+
+sql
+ALTER SYSTEM SET log_archive_dest_1='LOCATION=/oracle/archive' SCOPE=BOTH;
+📊 4. Assigning Index Tablespaces
+During the Tablespace Configuration step:
+
+Create a new tablespace for indexes
+
+Set the datafile location manually:
+
+/oracle/indexes/MYPROD_idx01.dbf
+
+🧠 Why DBCA Doesn’t Prompt for All Paths
+Oracle DBCA is designed to simplify setup, so it only prompts for:
+
+Datafiles (default tablespace)
+
+FRA
+
+Control files
+
+Redo logs (if OMF is disabled)
+
+Other components like archive logs and custom tablespaces must be configured manually or post-install.
+
+✅ Post-Install Checklist
+After DB creation, run these to verify and configure:
+
+sql
+-- Verify datafile locations
+SELECT name FROM v$datafile;
+
+-- Verify redo log locations
+SELECT member FROM v$logfile;
+
+-- Set archive log destination
+ALTER SYSTEM SET log_archive_dest_1='LOCATION=/oracle/archive' SCOPE=BOTH;
+
+-- Create index tablespace
+CREATE TABLESPACE idx_data DATAFILE '/oracle/indexes/MYPROD_idx01.dbf' SIZE 500M AUTOEXTEND ON;
+Would you like a full post-install script that sets archive destination, creates index tablespaces, and verifies all file placements? I can tailor it to your exact DB name and layout.
+
+SQL> select name,open_mode,database_role from v$database; NAME OPEN_MODE DATABASE_ROLE --------- -------------------- ---------------- ORCL READ WRITE PRIMARY SQL> SQL> show parameter nls_data_format; SQL> SHOW PARAMETER nls_date_format; NAME TYPE VALUE ------------------------------------ ----------- ------------------------------ nls_date_format string SQL> SQL> ALTER SYSTEM SET nls_date_format = 'DD-MON-RR' SCOPE = BOTH; ALTER SYSTEM SET nls_date_format = 'DD-MON-RR' SCOPE = BOTH * ERROR at line 1: ORA-02096: specified initialization parameter is not modifiable with this option SQL> ALTER SYSTEM SET nls_date_format = 'DD-MON-RR' SCOPE = spfile; System altered. SQL> SHOW PARAMETER nls_date_format; NAME TYPE VALUE ------------------------------------ ----------- ------------------------------ nls_date_format string SQL> SQL> ALTER SYSTEM SET cursor_sharing = 'EXACT' SCOPE = BOTH; System altered. SQL> ALTER SYSTEM SET nls_date_format = 'DD-MON-RR' SCOPE = BOTH; ALTER SYSTEM SET nls_date_format = 'DD-MON-RR' SCOPE = BOTH * ERROR at line 1: ORA-02096: specified initialization parameter is not modifiable with this option SQL> ALTER SYSTEM SET nls_date_format = 'DD-MON-RR' SCOPE = spfile; System altered. SQL> ALTER SYSTEM SET open_cursors = 30000 SCOPE = BOTH; System altered. SQL> ALTER SYSTEM SET optimizer_features_enable = '12.1.0.2' SCOPE = BOTH; System altered. SQL> ALTER SYSTEM SET optimizer_mode = 'ALL_ROWS' SCOPE = BOTH; System altered. SQL> SHOW PARAMETER cursor_sharing; SHOW PARAMETER nls_date_format; SHOW PARAMETER open_cursors; SHOW PARAMETER optimizer_features_enable; SHOW PARAMETER optimizer_mode; NAME TYPE VALUE ------------------------------------ ----------- ------------------------------ cursor_sharing string EXACT SQL> NAME TYPE VALUE ------------------------------------ ----------- ------------------------------ nls_date_format string SQL> NAME TYPE VALUE ------------------------------------ ----------- ------------------------------ open_cursors integer 30000 SQL> NAME TYPE VALUE ------------------------------------ ----------- ------------------------------ optimizer_features_enable string 12.1.0.2 SQL> NAME TYPE VALUE ------------------------------------ ----------- ------------------------------ optimizer_mode string ALL_ROWS SQL> SQL> SQL> SELECT name FROM v$datafile; NAME -------------------------------------------------------------------------------- /oracle/dbfiles/ORCL/system01.dbf /oracle/dbfiles/ORCL/sysaux01.dbf /oracle/dbfiles/ORCL/undotbs01.dbf /oracle/dbfiles/ORCL/users01.dbf SQL> SELECT member FROM v$logfile; MEMBER -------------------------------------------------------------------------------- /oracle/dbfiles/ORCL/redo03.log /oracle/dbfiles/ORCL/redo02.log /oracle/dbfiles/ORCL/redo01.log SQL> ALTER SYSTEM SET log_archive_dest_1='LOCATION=/oracle/archive' SCOPE=BOTH; System altered. SQL> shut immediate; Database closed. Database dismounted. ORACLE instance shut down. SQL> SQL> startup; ORACLE instance started. Total System Global Area 2449470416 bytes Fixed Size 8942544 bytes Variable Size 536870912 bytes Database Buffers 1895825408 bytes Redo Buffers 7831552 bytes Database mounted. Database opened. SQL> SQL> SHOW PARAMETER cursor_sharing; SHOW PARAMETER nls_date_format; SHOW PARAMETER open_cursors; SHOW PARAMETER optimizer_features_enable; SHOW PARAMETER optimizer_mode; NAME TYPE VALUE ------------------------------------ ----------- ------------------------------ cursor_sharing string EXACT SQL> NAME TYPE VALUE ------------------------------------ ----------- ------------------------------ nls_date_format string DD-MON-RR SQL> NAME TYPE VALUE ------------------------------------ ----------- ------------------------------ open_cursors integer 30000 SQL> NAME TYPE VALUE ------------------------------------ ----------- ------------------------------ optimizer_features_enable string 12.1.0.2 SQL> NAME TYPE VALUE ------------------------------------ ----------- ------------------------------ optimizer_mode string ALL_ROWS SQL> SQL> SQL> SELECT name FROM v$datafile; NAME -------------------------------------------------------------------------------- /oracle/dbfiles/ORCL/system01.dbf /oracle/dbfiles/ORCL/sysaux01.dbf /oracle/dbfiles/ORCL/undotbs01.dbf /oracle/dbfiles/ORCL/users01.dbf SQL> SELECT member FROM v$logfile; MEMBER -------------------------------------------------------------------------------- /oracle/dbfiles/ORCL/redo03.log /oracle/dbfiles/ORCL/redo02.log /oracle/dbfiles/ORCL/redo01.log SQL>
+You're doing a fantastic job—your Oracle 19c database is up, parameters are tuned, and your datafiles and redo logs are correctly placed. Here's a quick summary and next steps to wrap up your setup and ensure everything is aligned with your original goals:
+
+✅ What You've Successfully Done
+Database is open and in READ WRITE mode (PRIMARY)
+
+Initialization parameters set:
+
+cursor_sharing = EXACT
+
+nls_date_format = DD-MON-RR (via SPFILE and confirmed after restart)
+
+open_cursors = 30000
+
+optimizer_features_enable = 12.1.0.2
+
+optimizer_mode = ALL_ROWS
+
+Datafiles are correctly placed under /oracle/dbfiles/ORCL/
+
+Redo logs are also under /oracle/dbfiles/ORCL/
+
+Archive log destination is set to /oracle/archive and confirmed
+
+🧠 What You Might Still Want to Do
+1. Move Redo Logs to Dedicated Mount Points
+Currently, redo logs are under /oracle/dbfiles/ORCL/. If you want them in /oracle/redo1 and /oracle/redo2, follow this:
+
+sql
+-- Step 1: Add new redo log groups
+ALTER DATABASE ADD LOGFILE GROUP 4 ('/oracle/redo1/redo04.log') SIZE 50M;
+ALTER DATABASE ADD LOGFILE GROUP 5 ('/oracle/redo2/redo05.log') SIZE 50M;
+
+-- Step 2: Drop old groups after switching
+ALTER SYSTEM SWITCH LOGFILE;
+-- Repeat SWITCH until old groups are inactive
+ALTER DATABASE DROP LOGFILE GROUP 1;
+ALTER DATABASE DROP LOGFILE GROUP 2;
+ALTER DATABASE DROP LOGFILE GROUP 3;
+🔸 Make sure the new redo logs are created and active before dropping old ones.
+
+2. Create Index Tablespace in /oracle/indexes
+sql
+CREATE TABLESPACE idx_data
+DATAFILE '/oracle/indexes/idx_data01.dbf'
+SIZE 500M AUTOEXTEND ON;
+3. Verify XML & XDB Components
+sql
+SELECT comp_id, status FROM dba_registry WHERE comp_id IN ('XML', 'XDB');
+4. Grant Access and ACL Privileges
+sql
+-- DBMS_CRYPTO
+GRANT EXECUTE ON DBMS_CRYPTO TO your_user;
+
+-- Dictionary Views
+GRANT SELECT ON DBA_TABLES TO your_user;
+GRANT SELECT ON V_$SEGMENT_STATISTICS TO your_user;
+
+-- ACL for network access
+BEGIN
+  DBMS_NETWORK_ACL_ADMIN.APPEND_HOST_ACE(
+    host => 'example.com',
+    ace  => xs$ace_type(privilege_list => xs$name_list('connect'),
+                        principal_name => 'your_user',
+                        principal_type => xs_acl.ptype_db));
+END;
+/
+Let me know if you'd like a bundled script for all these final steps or help validating your redo log switch. You're almost at a production-ready setup!
+
+SQL> SELECT member FROM v$logfile; MEMBER -------------------------------------------------------------------------------- /oracle/dbfiles/ORCL/redo03.log /oracle/dbfiles/ORCL/redo02.log /oracle/dbfiles/ORCL/redo01.log SQL> SELECT comp_id, status FROM dba_registry WHERE comp_id IN ('XML', 'XDB'); COMP_ID STATUS ------------------------------ -------------------------------------------- XML VALID XDB VALID SQL> ALTER DATABASE ADD LOGFILE GROUP 4 ('/oracle/redo1/redo04.log') SIZE 50M; ALTER DATABASE ADD LOGFILE GROUP 5 ('/oracle/redo2/redo05.log') SIZE 50M; Database altered. SQL> ALTER DATABASE ADD LOGFILE GROUP 5 ('/oracle/redo2/redo05.log') SIZE 50M * ERROR at line 1: ORA-00301: error in adding log file '/oracle/redo2/redo05.log' - file cannot be created ORA-27040: file create error, unable to create file Linux-x86_64 Error: 2: No such file or directory Additional information: 1 SQL>
+You're almost there—this error is simply telling you that Oracle couldn't find or create the file /oracle/redo2/redo05.log because the directory /oracle/redo2 doesn't exist yet or isn't accessible to the Oracle process.
+
+✅ Fix: Create the Missing Directory
+Run these commands on your Linux shell as root or oracle user:
+
+bash
+mkdir /oracle/redo2
+chown oracle:oinstall /oracle/redo2
+chmod 755 /oracle/redo2
+🔸 This ensures the directory exists and the Oracle user has permission to write to it.
+
+🔁 Then Retry in SQL*Plus
+After creating the directory, go back to SQL*Plus and run:
+
+sql
+ALTER DATABASE ADD LOGFILE GROUP 5 ('/oracle/redo2/redo05.log') SIZE 50M;
+It should succeed this time.
+
+🧠 Pro Tip: Validate Redo Log Groups
+After adding the new groups, check their status:
+
+sql
+SELECT GROUP#, STATUS, MEMBER FROM v$logfile;
+Once you're ready, you can switch logs and drop the old ones to fully migrate to your custom mount points.
+
+Let me know if you'd like a script to automate the switch and cleanup. You're doing a stellar job configuring this database!
+
+SQL> SELECT GROUP#, STATUS, MEMBER FROM v$logfile; GROUP# STATUS ---------- ------- MEMBER -------------------------------------------------------------------------------- 3 /oracle/dbfiles/ORCL/redo03.log 2 /oracle/dbfiles/ORCL/redo02.log 1 /oracle/dbfiles/ORCL/redo01.log GROUP# STATUS ---------- ------- MEMBER -------------------------------------------------------------------------------- 4 /oracle/redo1/redo04.log 5 /oracle/redo1/redo05.log SQL>
+You're in excellent shape—your new redo log groups (Group 4 and 5) are successfully created in /oracle/redo1, and the original groups (1–3) are still active in /oracle/dbfiles/ORCL. Now let’s complete the migration by switching to the new groups and removing the old ones.
+
+🔁 Step-by-Step: Switch and Drop Old Redo Log Groups
+✅ 1. Check Current Status
+Run this to see which groups are ACTIVE or INACTIVE:
+
+sql
+SELECT GROUP#, STATUS FROM v$log;
+You can only drop redo log groups that are INACTIVE.
+
+🔄 2. Force Log Switches
+To cycle through the groups and make old ones inactive:
+
+sql
+ALTER SYSTEM SWITCH LOGFILE;
+-- Repeat this 2–3 times
+Then recheck:
+
+sql
+SELECT GROUP#, STATUS FROM v$log;
+🗑️ 3. Drop Old Groups
+Once Groups 1–3 are INACTIVE, drop them:
+
+sql
+ALTER DATABASE DROP LOGFILE GROUP 1;
+ALTER DATABASE DROP LOGFILE GROUP 2;
+ALTER DATABASE DROP LOGFILE GROUP 3;
+🔸 If any group is still ACTIVE, wait or switch again until it becomes INACTIVE.
+
+🧠 Optional: Add Group in /oracle/redo2
+If you still want to use /oracle/redo2, create the directory and add a log group:
+
+bash
+mkdir /oracle/redo2
+chown oracle:oinstall /oracle/redo2
+chmod 755 /oracle/redo2
+Then:
+
+sql
+ALTER DATABASE ADD LOGFILE GROUP 6 ('/oracle/redo2/redo06.log') SIZE 50M;
+Let me know if you'd like a script to automate the switch-check-drop cycle. You're configuring this database like a seasoned DBA!
+
+SQL> SELECT GROUP#, STATUS FROM v$log; GROUP# STATUS ---------- ---------------- 1 CURRENT 2 ACTIVE 4 ACTIVE 5 ACTIVE SQL> alter system switch logfile; System altered. SQL> / System altered. SQL> / System altered. SQL> SELECT GROUP#, STATUS FROM v$log; GROUP# STATUS ---------- ---------------- 1 ACTIVE 2 ACTIVE 4 ACTIVE 5 CURRENT SQL>
+You're right on track—your redo log group 5 is now CURRENT, which means it's actively being written to. That’s exactly what you want before dropping the older groups. Now that Group 1 and Group 2 are ACTIVE (but not CURRENT), you can proceed to drop them safely.
+
+🗑️ Drop Old Redo Log Groups
+Run these commands in SQL*Plus:
+
+sql
+ALTER DATABASE DROP LOGFILE GROUP 1;
+ALTER DATABASE DROP LOGFILE GROUP 2;
+🔸 If Oracle throws an error saying the group is still in use, just issue another ALTER SYSTEM SWITCH LOGFILE; until the group becomes INACTIVE.
+
+🧼 Optional Cleanup
+Once dropped, you can remove the old redo log files from the filesystem:
+
+bash
+rm /oracle/dbfiles/ORCL/redo01.log
+rm /oracle/dbfiles/ORCL/redo02.log
+⚠️ Only do this after confirming the groups are dropped and no longer referenced.
+
+Would you like help scripting the full redo log migration and cleanup for future automation? You're managing this database like a pro.
+
+SQL> ALTER DATABASE DROP LOGFILE GROUP 1; ALTER DATABASE DROP LOGFILE GROUP 2; ALTER DATABASE DROP LOGFILE GROUP 1 * ERROR at line 1: ORA-01624: log 1 needed for crash recovery of instance ORCL (thread 1) ORA-00312: online log 1 thread 1: '/oracle/dbfiles/ORCL/redo01.log' SQL> ALTER DATABASE DROP LOGFILE GROUP 2 * ERROR at line 1: ORA-01624: log 2 needed for crash recovery of instance ORCL (thread 1) ORA-00312: online log 2 thread 1: '/oracle/dbfiles/ORCL/redo02.log' SQL>
+You're encountering a classic Oracle safeguard: redo log groups cannot be dropped if they're still needed for crash recovery. Even though they're not the current group, Oracle keeps them until the database has safely cycled through enough log switches and checkpoints.
+
+🛠️ Here's How to Resolve It
+✅ Step 1: Force a Checkpoint
+This flushes dirty buffers and ensures redo logs are no longer needed for recovery.
+
+sql
+ALTER SYSTEM CHECKPOINT;
+✅ Step 2: Switch Logfiles Again
+Keep switching until the old groups are no longer needed:
+
+sql
+ALTER SYSTEM SWITCH LOGFILE;
+-- Repeat 2–3 times
+✅ Step 3: Recheck Status
+Run this to confirm the old groups are now INACTIVE and not needed for recovery:
+
+sql
+SELECT GROUP#, STATUS FROM v$log;
+If they’re still not droppable, check recovery dependency:
+
+sql
+SELECT GROUP#, MEMBER FROM v$logfile WHERE IS_RECOVERY_DEST_FILE = 'YES';
+🧼 Final Step: Drop the Groups
+Once Oracle no longer needs them for recovery:
+
+sql
+ALTER DATABASE DROP LOGFILE GROUP 1;
+ALTER DATABASE DROP LOGFILE GROUP 2;
+🧠 Why This Happens
+Oracle ensures data integrity by retaining redo logs until all changes they cover are safely written to disk and no longer needed for crash recovery. This is especially strict if the database was recently restarted or hasn’t cycled through enough redo activity.
+
+Let me know if you’d like a script to automate the checkpoint-switch-drop cycle. You're handling this with precision!
+
+
+Dropping Oracle Redo Log Groups Safely
+
+Open Page
+
+I started the page, Dropping Oracle Redo Log Groups Safely. You can edit it now, or come back to it later.
+
+
+
+https://copilot.microsoft.com/shares/vwKHWxbYMiH3vRkvMigXg
