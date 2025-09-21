@@ -1,0 +1,322 @@
+SQL>  SELECT name FROM v$datafile;
+
+NAME
+--------------------------------------------------------------------------------
+/oracle/dbfiles/ORCL/system01.dbf
+/oracle/dbfiles/ORCL/sysaux01.dbf
+/oracle/dbfiles/ORCL/undotbs01.dbf
+/oracle/dbfiles/ORCL/users01.dbf
+
+SQL> SELECT member FROM v$logfile;
+
+MEMBER
+--------------------------------------------------------------------------------
+/oracle/dbfiles/ORCL/redo03.log
+/oracle/dbfiles/ORCL/redo02.log
+/oracle/dbfiles/ORCL/redo01.log
+
+SQL> SELECT comp_id, status FROM dba_registry WHERE comp_id IN ('XML', 'XDB');
+
+COMP_ID                        STATUS
+------------------------------ --------------------------------------------
+XML                            VALID
+XDB                            VALID
+
+SQL> ALTER DATABASE ADD LOGFILE GROUP 4 ('/oracle/redo1/redo04.log') SIZE 50M;
+ALTER DATABASE ADD LOGFILE GROUP 5 ('/oracle/redo2/redo05.log') SIZE 50M;
+Database altered.
+
+SQL>
+ALTER DATABASE ADD LOGFILE GROUP 5 ('/oracle/redo2/redo05.log') SIZE 50M
+*
+ERROR at line 1:
+ORA-00301: error in adding log file '/oracle/redo2/redo05.log' - file cannot be
+created
+ORA-27040: file create error, unable to create file
+Linux-x86_64 Error: 2: No such file or directory
+Additional information: 1
+
+
+SQL> ALTER DATABASE ADD LOGFILE GROUP 5 ('/oracle/redo1/redo05.log') SIZE 50M;
+
+Database altered.
+
+SQL> SELECT GROUP#, STATUS, MEMBER FROM v$logfile;
+
+    GROUP# STATUS
+---------- -------
+MEMBER
+--------------------------------------------------------------------------------
+         3
+/oracle/dbfiles/ORCL/redo03.log
+
+         2
+/oracle/dbfiles/ORCL/redo02.log
+
+         1
+/oracle/dbfiles/ORCL/redo01.log
+
+
+    GROUP# STATUS
+---------- -------
+MEMBER
+--------------------------------------------------------------------------------
+         4
+/oracle/redo1/redo04.log
+
+         5
+/oracle/redo1/redo05.log
+
+
+SQL> ALTER SYSTEM SWITCH LOGFILE;
+-- Repeat this 2–3 times
+
+System altered.
+
+SQL> SQL>
+SQL> /
+
+System altered.
+
+SQL> /
+
+System altered.
+
+SQL> /
+
+System altered.
+
+SQL> /
+
+System altered.
+
+SQL> SELECT GROUP#, STATUS FROM v$log;
+
+    GROUP# STATUS
+---------- ----------------
+         1 ACTIVE
+         2 CURRENT
+         3 ACTIVE
+         4 ACTIVE
+         5 ACTIVE
+
+SQL> /
+
+    GROUP# STATUS
+---------- ----------------
+         1 ACTIVE
+         2 CURRENT
+         3 ACTIVE
+         4 ACTIVE
+         5 ACTIVE
+
+SQL> ALTER SYSTEM SWITCH LOGFILE;
+
+System altered.
+
+SQL> /
+
+System altered.
+
+SQL> SELECT GROUP#, STATUS FROM v$log;
+
+    GROUP# STATUS
+---------- ----------------
+         1 ACTIVE
+         2 ACTIVE
+         3 INACTIVE
+         4 ACTIVE
+         5 CURRENT
+
+SQL> ALTER DATABASE DROP LOGFILE GROUP 3;
+
+Database altered.
+
+SQL> ALTER SYSTEM SWITCH LOGFILE;
+
+System altered.
+
+SQL> SELECT GROUP#, STATUS FROM v$log;
+
+    GROUP# STATUS
+---------- ----------------
+         1 CURRENT
+         2 ACTIVE
+         4 ACTIVE
+         5 ACTIVE
+
+SQL> ALTER SYSTEM SWITCH LOGFILE;
+
+System altered.
+
+SQL> /
+
+System altered.
+
+SQL> SELECT GROUP#, STATUS FROM v$log;
+
+    GROUP# STATUS
+---------- ----------------
+         1 ACTIVE
+         2 ACTIVE
+         4 CURRENT
+         5 ACTIVE
+
+SQL> /
+
+    GROUP# STATUS
+---------- ----------------
+         1 ACTIVE
+         2 ACTIVE
+         4 CURRENT
+         5 ACTIVE
+
+SQL> /
+
+    GROUP# STATUS
+---------- ----------------
+         1 ACTIVE
+         2 ACTIVE
+         4 CURRENT
+         5 ACTIVE
+
+SQL> /
+
+    GROUP# STATUS
+---------- ----------------
+         1 ACTIVE
+         2 ACTIVE
+         4 CURRENT
+         5 ACTIVE
+
+SQL>
+SQL> /
+
+    GROUP# STATUS
+---------- ----------------
+         1 ACTIVE
+         2 ACTIVE
+         4 CURRENT
+         5 ACTIVE
+
+SQL> /
+
+    GROUP# STATUS
+---------- ----------------
+         1 ACTIVE
+         2 ACTIVE
+         4 CURRENT
+         5 ACTIVE
+
+SQL> alter system switch logfile;
+
+System altered.
+
+SQL> /
+
+System altered.
+
+SQL> SELECT GROUP#, STATUS FROM v$log;
+
+    GROUP# STATUS
+---------- ----------------
+         1 CURRENT
+         2 ACTIVE
+         4 ACTIVE
+         5 ACTIVE
+
+SQL> alter system switch logfile;
+
+System altered.
+
+SQL> /
+
+System altered.
+
+SQL> /
+
+System altered.
+
+SQL> alter system switch logfile;
+
+System altered.
+
+SQL> SELECT GROUP#, STATUS FROM v$log;
+
+    GROUP# STATUS
+---------- ----------------
+         1 CURRENT
+         2 ACTIVE
+         4 ACTIVE
+         5 ACTIVE
+
+SQL> alter system switch logfile;
+
+System altered.
+
+SQL> /
+
+System altered.
+
+SQL> /
+
+System altered.
+
+SQL> SELECT GROUP#, STATUS FROM v$log;
+
+    GROUP# STATUS
+---------- ----------------
+         1 ACTIVE
+         2 ACTIVE
+         4 ACTIVE
+         5 CURRENT
+
+SQL> ALTER DATABASE DROP LOGFILE GROUP 1;
+ALTER DATABASE DROP LOGFILE GROUP 2;
+ALTER DATABASE DROP LOGFILE GROUP 1
+*
+ERROR at line 1:
+ORA-01624: log 1 needed for crash recovery of instance ORCL (thread 1)
+ORA-00312: online log 1 thread 1: '/oracle/dbfiles/ORCL/redo01.log'
+
+
+SQL> ALTER DATABASE DROP LOGFILE GROUP 2
+*
+ERROR at line 1:
+ORA-01624: log 2 needed for crash recovery of instance ORCL (thread 1)
+ORA-00312: online log 2 thread 1: '/oracle/dbfiles/ORCL/redo02.log'
+
+
+SQL> ALTER SYSTEM CHECKPOINT;
+
+System altered.
+
+SQL> SELECT GROUP#, STATUS FROM v$log;
+
+    GROUP# STATUS
+---------- ----------------
+         1 INACTIVE
+         2 INACTIVE
+         4 INACTIVE
+         5 CURRENT
+
+SQL>  ALTER DATABASE DROP LOGFILE GROUP 1;
+
+Database altered.
+
+SQL> ALTER DATABASE DROP LOGFILE GROUP 2;
+
+Database altered.
+
+SQL> alter system switch logfile;
+
+System altered.
+
+SQL> SELECT GROUP#, STATUS FROM v$log;
+
+    GROUP# STATUS
+---------- ----------------
+         4 CURRENT
+         5 ACTIVE
+
+SQL>
